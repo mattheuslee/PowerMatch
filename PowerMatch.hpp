@@ -29,6 +29,27 @@ std::string assemble_string(std::vector<std::string> const & chars) {
     return oss.str();
 }
 
+std::vector<std::string> generate_permutations(std::string const & keyword) {
+    auto chars = std::vector<std::string>();
+    for (auto const & c : keyword) {
+        chars.emplace_back(1, c);
+    }
+    std::sort(chars.begin(), chars.end());
+    auto permutations = std::vector<std::string>();
+    do {
+        permutations.push_back(assemble_string(chars));
+    } while (std::next_permutation(chars.begin(), chars.end()));
+    return permutations;
+}
+
+std::vector<std::regex> to_regexes(std::vector<std::string> const & keywords) {
+    auto regexes = std::vector<std::regex>();
+    for (auto const & keyword : keywords) {
+        regexes.push_back(std::regex(keyword));
+    }
+    return regexes;
+}
+
 std::vector<std::string> get_regex_searches(std::vector<std::string> const & potentialMatches, std::regex const & regex) {
     auto matches = std::vector<std::string>();
     for (auto const & potentialMatch : potentialMatches) {
@@ -186,16 +207,7 @@ public:
 
 private:
     static std::vector<std::regex> get_regexes_(std::string const & keyword) {
-        auto chars = std::vector<std::string>();
-        for (auto const & c : keyword) {
-            chars.push_back(std::string("") + c);
-        }
-        std::sort(chars.begin(), chars.end());
-        auto regexes = std::vector<std::regex>();
-        do {
-            regexes.push_back(std::regex(assemble_string(chars)));
-        } while (std::next_permutation(chars.begin(), chars.end()));
-        return regexes;
+        return to_regexes(generate_permutations(keyword));
     }
 
 };
